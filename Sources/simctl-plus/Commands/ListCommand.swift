@@ -31,12 +31,12 @@ struct ListCommand: ParsableCommand {
         // Print simulators in a formatted table
         print("\nAvailable Simulators:")
         print("----------------------------------------")
-        print("Name\t\tState\t\tAvailable\tDevice Type")
+        print("Name\t\tState\t\tAvailable\tDevice Type\t\tUDID")
         print("----------------------------------------")
         
         for simulator in filteredSimulators {
             let deviceType = simulator.deviceTypeIdentifier.split(separator: ".").last ?? ""
-            print("\(simulator.name)\t\(simulator.state.rawValue)\t\(simulator.isAvailable ? "Yes" : "No")\t\(deviceType)")
+            print("\(simulator.name)\t\(simulator.state.rawValue)\t\(simulator.isAvailable ? "Yes" : "No")\t\(deviceType)\t\(simulator.udid)")
         }
         
         print("\nTotal: \(filteredSimulators.count) simulator(s)")
