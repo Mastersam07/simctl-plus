@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:simctl-plus}",
+            "name": "Debug simctl-plus",
+            "program": "${workspaceFolder:simctl-plus}/.build/debug/simctl-plus",
+            "preLaunchTask": "swift: Build Debug simctl-plus"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:simctl-plus}",
+            "name": "Release simctl-plus",
+            "program": "${workspaceFolder:simctl-plus}/.build/release/simctl-plus",
+            "preLaunchTask": "swift: Build Release simctl-plus"
+        }
+    ]
+}
