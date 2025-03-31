@@ -4,7 +4,14 @@ struct SimulatorDevice: Codable {
     let udid: String
     let name: String
     let state: DeviceState
-    let runtime: String
+    let isAvailable: Bool
+    let deviceTypeIdentifier: String
+    let dataPath: String
+    let dataPathSize: Int64
+    let logPath: String
+    let logPathSize: Int64?
+    let lastBootedAt: String?
+    let availabilityError: String?
     
     enum DeviceState: String, Codable {
         case booted = "Booted"
@@ -31,5 +38,4 @@ struct SimulatorRuntime: Codable {
 
 struct SimulatorListResponse: Codable {
     let devices: [String: [SimulatorDevice]]
-    let runtimes: [SimulatorRuntime]
 } 
