@@ -21,6 +21,13 @@ public struct BootCommand: ParsableCommand {
         print("Booting simulator \(deviceId)...")
         try controller.bootSimulator(deviceId: deviceId)
         
+        print("Launching Simulator.app...")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = ["-a", "Simulator"]
+        try process.run()
+        process.waitUntilExit()
+        
         if wait {
             print("Waiting for boot to complete...")
             // TODO: Implement boot completion check
