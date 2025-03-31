@@ -16,7 +16,7 @@ struct RecordCommand: ParsableCommand {
     func run() throws {
         let controller = SimulatorController()
         let path = outputPath ?? "simulator_\(deviceId)_\(Int(Date().timeIntervalSince1970)).mp4"
-        try controller.startRecording(deviceId: deviceId, outputPath: path)
-        print("Recording started. Press Ctrl+C to stop recording.")
+        let absolutePath = (path as NSString).expandingTildeInPath
+        try controller.startRecording(deviceId: deviceId, outputPath: absolutePath)
     }
 }

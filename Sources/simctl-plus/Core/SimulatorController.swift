@@ -70,8 +70,7 @@ class SimulatorController {
     func startRecording(deviceId: String, outputPath: String) throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: simctlPath)
-        process.arguments = ["simctl", "io", deviceId, "record", outputPath]
-        
+        process.arguments = ["simctl", "io", deviceId, "recordVideo", "--codec=hevc", outputPath]
         _ = try runProcess(process)
     }
     
