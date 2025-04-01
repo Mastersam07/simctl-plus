@@ -10,14 +10,7 @@ struct SimctlPlus: ParsableCommand {
         abstract: "Enhanced simulator control tool with additional features",
         version: "1.0.0",
         subcommands: [
-            ListCommand.self,
-            BootCommand.self,
-            ShutdownCommand.self,
-            InstallCommand.self,
-            UninstallCommand.self,
-            ScreenshotCommand.self,
-            RecordCommand.self,
-            DiagnoseCommand.self,
+            SimulatorCommand.self,
             VMCommand.self
         ]
     )

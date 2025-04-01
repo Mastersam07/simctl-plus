@@ -19,6 +19,14 @@ struct VMInfo {
     let state: VMState
 }
 
+struct VMConfiguration {
+    let name: String
+    let memorySize: UInt64
+    let cpuCount: UInt
+    let diskSize: UInt64
+}
+
+
 class VMManager {
     private let fileManager = FileManager.default
     private let defaultVMPath: URL
