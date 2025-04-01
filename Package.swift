@@ -21,9 +21,6 @@ let package = Package(
             ],
             resources: [
                 .process("simctl-plus.entitlements")
-            ],
-            swiftSettings: [
-                .unsafeFlags(["-enable-bare-slash-regex"])
             ]
         )
     ]
