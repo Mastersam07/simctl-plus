@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build the project
-swift build
+swift build -c release
 
 # Get the path to the binary
 BINARY_PATH=".build/debug/simctl-plus"
