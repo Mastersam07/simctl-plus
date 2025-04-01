@@ -30,7 +30,7 @@ public struct BootCommand: ParsableCommand {
         
         if wait {
             print("Waiting for boot to complete...")
-            // TODO: Implement boot completion check
+            // TODO(mastersam07): Implement boot completion check
             // This would require polling the simulator state
         }
         
