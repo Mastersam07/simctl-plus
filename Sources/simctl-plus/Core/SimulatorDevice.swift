@@ -12,7 +12,7 @@ struct SimulatorDevice: Codable {
     let logPathSize: Int64?
     let lastBootedAt: String?
     let availabilityError: String?
-    
+
     enum DeviceState: String, Codable {
         case booted = "Booted"
         case shutdown = "Shutdown"
@@ -26,7 +26,7 @@ struct SimulatorRuntime: Codable {
     let version: String
     let buildversion: String
     let isAvailable: Bool
-    
+
     enum CodingKeys: String, CodingKey {
         case name
         case identifier
@@ -38,4 +38,4 @@ struct SimulatorRuntime: Codable {
 
 struct SimulatorListResponse: Codable {
     let devices: [String: [SimulatorDevice]]
-} 
+}
