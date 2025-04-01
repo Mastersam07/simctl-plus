@@ -10,7 +10,7 @@ struct DiagnoseCommand: ParsableCommand {
     @Argument(help: "The simulator device ID")
     var deviceId: String
 
-    @Option(help: "Output directory for diagnostics (default: temporary directory)")
+    @Option(help: "Output directory for diagnostics")
     var output: String?
 
     @Option(help: "Timeout in seconds for log collection")
@@ -23,15 +23,6 @@ struct DiagnoseCommand: ParsableCommand {
     var dataContainers = false
 
     func run() throws {
-        // Create output directory if specified, otherwise use temporary directory
-        let outputDir =
-            output
-            ?? FileManager.default.temporaryDirectory.appendingPathComponent(
-                "simulator_diagnostics"
-            ).path
-        let fileManager = FileManager.default
-        try? fileManager.createDirectory(atPath: outputDir, withIntermediateDirectories: true)
-
         // First, check if the device exists
         let listProcess = Process()
         listProcess.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
@@ -50,10 +41,15 @@ struct DiagnoseCommand: ParsableCommand {
             throw SimulatorError.deviceNotFound(deviceId)
         }
 
-        var args = ["simctl", "diagnose", "-b", "--udid=\(deviceId)", "--output=\(outputDir)"]
+        var args = ["simctl", "diagnose", "-b", "--udid=\(deviceId)"]
 
-        let timeoutValue = timeout ?? 30
-        args.append(contentsOf: ["--timeout=\(String(timeoutValue))"])
+        if let output = output {
+            args.append(contentsOf: ["--output=\(output)"])
+        }
+
+        if let timeout = timeout {
+            args.append(contentsOf: ["--timeout=\(String(timeout))"])
+        }
 
         // Always include --all-logs since we want to collect logs for non-booted devices
         args.append("--all-logs")
@@ -101,12 +97,15 @@ struct DiagnoseCommand: ParsableCommand {
             print(errorString)
         }
 
-        // Check if the output directory contains any files
-        let contents = try? fileManager.contentsOfDirectory(atPath: outputDir)
-        if let contents = contents, !contents.isEmpty {
-            print("Diagnostics collected in: \(outputDir)")
-        } else {
-            throw SimulatorError.commandFailed("No diagnostic files were generated")
+        // If output directory was specified, check if files were generated
+        if let output = output {
+            let fileManager = FileManager.default
+            let contents = try? fileManager.contentsOfDirectory(atPath: output)
+            if let contents = contents, !contents.isEmpty {
+                print("Diagnostics collected in: \(output)")
+            } else {
+                throw SimulatorError.commandFailed("No diagnostic files were generated")
+            }
         }
     }
 }
