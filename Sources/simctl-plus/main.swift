@@ -4,10 +4,11 @@
 import Foundation
 import ArgumentParser
 
-public struct SimctlPlus: ParsableCommand {
-    public static var configuration = CommandConfiguration(
+struct SimctlPlus: ParsableCommand {
+    static var configuration = CommandConfiguration(
         commandName: "simctl-plus",
-        abstract: "Enhanced simulator control tool",
+        abstract: "Enhanced simulator control tool with additional features",
+        version: "1.0.0",
         subcommands: [
             ListCommand.self,
             BootCommand.self,
@@ -16,11 +17,10 @@ public struct SimctlPlus: ParsableCommand {
             UninstallCommand.self,
             ScreenshotCommand.self,
             RecordCommand.self,
-            DiagnoseCommand.self
+            DiagnoseCommand.self,
+            VMCommand.self
         ]
     )
-    
-    public init() {}
 }
 
 SimctlPlus.main()

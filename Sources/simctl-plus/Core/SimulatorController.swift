@@ -7,6 +7,10 @@ enum SimulatorError: LocalizedError {
     case invalidAppPath(String)
     case simulatorNotFound(String)
     case jsonParsingError(String)
+    case vmNotFound(String)
+    case vmCreationFailed(String)
+    case vmStartFailed(String)
+    case vmStopFailed(String)
 
     var errorDescription: String? {
         switch self {
@@ -20,7 +24,14 @@ enum SimulatorError: LocalizedError {
             return "Simulator not found: \(name)"
         case .jsonParsingError(let error):
             return "JSON parsing error: \(error)"
-
+        case .vmNotFound(let name):
+            return "VM not found: \(name)"
+        case .vmCreationFailed(let message):
+            return "Failed to create VM: \(message)"
+        case .vmStartFailed(let message):
+            return "Failed to start VM: \(message)"
+        case .vmStopFailed(let message):
+            return "Failed to stop VM: \(message)"
         }
     }
 }
