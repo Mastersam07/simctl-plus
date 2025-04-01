@@ -31,7 +31,6 @@ struct CreateCommand: ParsableCommand {
             diskSize: UInt64(disk) * 1024 * 1024 * 1024
         )
 
-        // Create a semaphore to wait for the async operation
         let semaphore = DispatchSemaphore(value: 0)
         var asyncError: Error?
 
@@ -45,7 +44,6 @@ struct CreateCommand: ParsableCommand {
             semaphore.signal()
         }
 
-        // Wait for the async operation to complete
         semaphore.wait()
 
         if let error = asyncError {

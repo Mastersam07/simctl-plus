@@ -7,7 +7,7 @@ struct SimulatorDiagnosticsCommand: ParsableCommand {
         abstract: "Generate diagnostic reports and measure performance for iOS simulators",
         subcommands: [
             SimulatorReportCommand.self,
-            SimulatorStartupTimeCommand.self
+            SimulatorStartupTimeCommand.self,
         ]
     )
 }
@@ -39,8 +39,7 @@ struct SimulatorStartupTimeCommand: ParsableCommand {
 
     func run() throws {
         let controller = SimulatorController()
-        
-        // Create a semaphore to wait for the async operation
+
         let semaphore = DispatchSemaphore(value: 0)
         var asyncError: Error?
         var startupTime: TimeInterval = 0
@@ -61,4 +60,4 @@ struct SimulatorStartupTimeCommand: ParsableCommand {
             throw error
         }
     }
-} 
+}

@@ -23,7 +23,7 @@ struct DiagnoseCommand: ParsableCommand {
     var dataContainers = false
 
     func run() throws {
-        // First, check if the device exists
+
         let listProcess = Process()
         listProcess.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
         listProcess.arguments = ["simctl", "list", "devices", "--json"]
@@ -51,7 +51,6 @@ struct DiagnoseCommand: ParsableCommand {
             args.append(contentsOf: ["--timeout=\(String(timeout))"])
         }
 
-        // Always include --all-logs since we want to collect logs for non-booted devices
         args.append("--all-logs")
 
         if dataContainers {
@@ -72,7 +71,6 @@ struct DiagnoseCommand: ParsableCommand {
 
         try process.run()
 
-        // Force non-interactive mode, send newline to proceed with prompts
         if let inputData = "\n".data(using: .utf8) {
             try inputPipe.fileHandleForWriting.write(contentsOf: inputData)
             try inputPipe.fileHandleForWriting.close()
@@ -80,7 +78,6 @@ struct DiagnoseCommand: ParsableCommand {
 
         process.waitUntilExit()
 
-        // Add a small delay to ensure files are written
         Thread.sleep(forTimeInterval: 1.0)
 
         let errorData = try errorPipe.fileHandleForReading.readToEnd() ?? Data()
@@ -89,7 +86,6 @@ struct DiagnoseCommand: ParsableCommand {
         let outputData = try outputPipe.fileHandleForReading.readToEnd() ?? Data()
         let outputString = String(data: outputData, encoding: .utf8) ?? ""
 
-        // Print both output and error as they might contain useful information
         if !outputString.isEmpty {
             print(outputString)
         }
@@ -97,7 +93,6 @@ struct DiagnoseCommand: ParsableCommand {
             print(errorString)
         }
 
-        // If output directory was specified, check if files were generated
         if let output = output {
             let fileManager = FileManager.default
             let contents = try? fileManager.contentsOfDirectory(atPath: output)

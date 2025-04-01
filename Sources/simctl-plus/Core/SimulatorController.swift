@@ -124,7 +124,6 @@ class SimulatorController {
 
         try process.run()
 
-        // Send newline character to proceed with the interactive prompt
         if let inputData = "\n".data(using: .utf8) {
             try inputPipe.fileHandleForWriting.write(contentsOf: inputData)
             try inputPipe.fileHandleForWriting.close()
@@ -170,24 +169,26 @@ class SimulatorController {
             warnings: [],
             performance: [:]
         )
-        
-        // Parse log output
+
         let lines = logOutput.components(separatedBy: .newlines)
         var bootStartTime: Date?
         var bootEndTime: Date?
         var errors: [String] = []
         var warnings: [String] = []
         var performance: [String: TimeInterval] = [:]
-        
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        
+
         for line in lines {
-            // Extract timestamp if present
-            if let timestampRange = line.range(of: "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}", options: .regularExpression) {
+
+            if let timestampRange = line.range(
+                of: "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}",
+                options: .regularExpression)
+            {
                 let timestamp = String(line[timestampRange])
                 if let date = dateFormatter.date(from: timestamp) {
-                    // Track boot time
+
                     if line.contains("Simulator boot started") {
                         bootStartTime = date
                     } else if line.contains("Simulator boot completed") {
@@ -195,18 +196,19 @@ class SimulatorController {
                     }
                 }
             }
-            
-            // Collect errors and warnings
+
             if line.contains("[Error]") {
                 errors.append(line)
             } else if line.contains("[Warning]") {
                 warnings.append(line)
             }
-            
-            // Track performance metrics
+
             if line.contains("Operation completed in") {
-                if let timeRange = line.range(of: "\\d+\\.\\d+ seconds", options: .regularExpression) {
-                    let timeStr = String(line[timeRange]).replacingOccurrences(of: " seconds", with: "")
+                if let timeRange = line.range(
+                    of: "\\d+\\.\\d+ seconds", options: .regularExpression)
+                {
+                    let timeStr = String(line[timeRange]).replacingOccurrences(
+                        of: " seconds", with: "")
                     if let time = Double(timeStr) {
                         let operation = line.components(separatedBy: ":")[0]
                         performance[operation] = time
@@ -214,8 +216,7 @@ class SimulatorController {
                 }
             }
         }
-        
-        // Calculate boot time if available
+
         if let start = bootStartTime, let end = bootEndTime {
             diagnostics = SimulatorDiagnostics(
                 bootTime: end.timeIntervalSince(start),
@@ -224,51 +225,46 @@ class SimulatorController {
                 performance: performance
             )
         }
-        
+
         return diagnostics
     }
-    
+
     func generateReport(deviceId: String) throws -> String {
         let diagnostics = try analyzeLogs(deviceId: deviceId)
         var report = ["Simulator Diagnostic Report"]
         report.append("==========================")
         report.append("")
-        
-        // Boot time
+
         report.append("Boot Time: \(String(format: "%.2f", diagnostics.bootTime))s")
         report.append("")
-        
-        // Performance metrics
+
         report.append("Performance Metrics:")
         report.append("-----------------")
         for (operation, time) in diagnostics.performance {
             report.append("\(operation): \(String(format: "%.2f", time))s")
         }
         report.append("")
-        
-        // Errors
+
         report.append("Errors (\(diagnostics.errors.count)):")
         report.append("--------")
         for error in diagnostics.errors {
             report.append("- \(error)")
         }
         report.append("")
-        
-        // Warnings
+
         report.append("Warnings (\(diagnostics.warnings.count)):")
         report.append("----------")
         for warning in diagnostics.warnings {
             report.append("- \(warning)")
         }
-        
+
         return report.joined(separator: "\n")
     }
-    
+
     func measureStartupTime(deviceId: String) async throws -> TimeInterval {
         let startTime = Date()
         try bootSimulator(deviceId: deviceId)
-        
-        // Wait for boot to complete by checking status
+
         var isBooted = false
         while !isBooted {
             let simulators = try listSimulators()
@@ -276,20 +272,19 @@ class SimulatorController {
                 isBooted = simulator.state == .booted
             }
             if !isBooted {
-                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 second
+                try await Task.sleep(nanoseconds: 500_000_000)  // 0.5 second
             }
         }
-        
+
         return Date().timeIntervalSince(startTime)
     }
 }
 
-// Add new error types
 extension SimulatorError {
     static func logParsingError(_ message: String) -> SimulatorError {
         return .commandFailed("Log parsing error: \(message)")
     }
-    
+
     static func performanceError(_ message: String) -> SimulatorError {
         return .commandFailed("Performance measurement error: \(message)")
     }

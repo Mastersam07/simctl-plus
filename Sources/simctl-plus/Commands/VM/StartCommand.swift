@@ -13,7 +13,6 @@ struct StartCommand: ParsableCommand {
     func run() throws {
         let vmManager = VMManager()
 
-        // Create a semaphore to wait for the async operation
         let semaphore = DispatchSemaphore(value: 0)
         var asyncError: Error?
 
@@ -27,7 +26,6 @@ struct StartCommand: ParsableCommand {
             semaphore.signal()
         }
 
-        // Wait for the async operation to complete
         semaphore.wait()
 
         if let error = asyncError {

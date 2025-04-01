@@ -26,7 +26,6 @@ struct VMConfiguration {
     let diskSize: UInt64
 }
 
-
 class VMManager {
     private let fileManager = FileManager.default
     private let defaultVMPath: URL
@@ -45,35 +44,28 @@ class VMManager {
             ?? defaultVMPath.appendingPathComponent(config.name)
         print("Creating VM at path: \(vmPath.path)")
 
-        // Clean up existing VM files if they exist
         if fileManager.fileExists(atPath: vmPath.path) {
             print("Removing existing VM files...")
             try fileManager.removeItem(at: vmPath)
         }
 
-        // Create VM directory
         print("Creating VM directory...")
         try fileManager.createDirectory(at: vmPath, withIntermediateDirectories: true)
 
-        // Create VM configuration
         print("Creating VM configuration...")
         let vmConfig = VZVirtualMachineConfiguration()
 
-        // Configure platform
         let platform = VZMacPlatformConfiguration()
         platform.machineIdentifier = VZMacMachineIdentifier()
         vmConfig.platform = platform
 
-        // Configure boot loader
         print("Configuring boot loader...")
         let bootLoader = VZMacOSBootLoader()
         vmConfig.bootLoader = bootLoader
 
-        // Configure CPU and memory
         vmConfig.cpuCount = Int(config.cpuCount)
         vmConfig.memorySize = config.memorySize
 
-        // Configure storage
         print("Creating disk image...")
         let diskImageURL = vmPath.appendingPathComponent("disk.img")
         let sparseImageURL = try createDiskImage(at: diskImageURL, size: config.diskSize)
@@ -84,7 +76,6 @@ class VMManager {
         let storage = VZVirtioBlockDeviceConfiguration(attachment: attachment)
         vmConfig.storageDevices = [storage]
 
-        // Configure graphics
         print("Configuring graphics...")
         let graphics = VZMacGraphicsDeviceConfiguration()
         graphics.displays = [
@@ -96,19 +87,16 @@ class VMManager {
         ]
         vmConfig.graphicsDevices = [graphics]
 
-        // Configure network
         print("Configuring network...")
         let network = VZVirtioNetworkDeviceConfiguration()
         network.attachment = VZNATNetworkDeviceAttachment()
         vmConfig.networkDevices = [network]
 
-        // Create and configure auxiliary storage
         print("Creating auxiliary storage...")
         let auxiliaryStorageURL = vmPath.appendingPathComponent("auxiliary.storage")
         try fileManager.createDirectory(
             at: auxiliaryStorageURL.deletingLastPathComponent(), withIntermediateDirectories: true)
 
-        // Get the hardware model from the restore image
         print("Getting hardware model from restore image...")
         let restoreImage = try await VZMacOSRestoreImage.latestSupported
         guard let configuration = restoreImage.mostFeaturefulSupportedConfiguration else {
@@ -129,11 +117,9 @@ class VMManager {
             macPlatform.hardwareModel = hardwareModel
         }
 
-        // Validate configuration
         print("Validating configuration...")
         try vmConfig.validate()
 
-        // Save VM configuration
         print("Saving VM configuration...")
         let vmURL = vmPath.appendingPathComponent("vm.json")
         try saveVMConfiguration(vmConfig, to: vmURL)
@@ -176,7 +162,6 @@ class VMManager {
                 throw SimulatorError.vmCreationFailed("Failed to create disk image: \(errorString)")
             }
 
-            // Return the .sparseimage file URL
             return url.appendingPathExtension("sparseimage")
         } catch {
             print("Error running hdiutil: \(error)")
@@ -185,8 +170,7 @@ class VMManager {
     }
 
     private func saveVMConfiguration(_ config: VZVirtualMachineConfiguration, to url: URL) throws {
-        // Since VZVirtualMachineConfiguration doesn't conform to Codable,
-        // we'll save the essential configuration parameters as JSON
+
         let configDict: [String: Any] = [
             "cpuCount": config.cpuCount,
             "memorySize": config.memorySize,
@@ -206,13 +190,12 @@ class VMManager {
         let contents = try fileManager.contentsOfDirectory(
             at: vmPath, includingPropertiesForKeys: nil)
         return contents.compactMap { url in
-            // Skip system files and non-directories
+
             let filename = url.lastPathComponent
             if filename.hasPrefix(".") || !url.hasDirectoryPath {
                 return nil
             }
 
-            // Check if it's a valid VM by looking for the config file
             let configURL = url.appendingPathComponent("vm.json")
             guard fileManager.fileExists(atPath: configURL.path) else {
                 return nil
@@ -229,7 +212,7 @@ class VMManager {
 
     func startVM(name: String) async throws {
         do {
-            // Check if VM is already running
+
             if isVMRunning(name: name) {
                 print("VM '\(name)' is already running")
                 return
@@ -260,12 +243,10 @@ class VMManager {
             vmConfig.cpuCount = cpuCount
             vmConfig.memorySize = memorySize
 
-            // Configure platform and auxiliary storage
             print("Configuring platform...")
             let platform = VZMacPlatformConfiguration()
             platform.machineIdentifier = VZMacMachineIdentifier()
 
-            // Get the hardware model from the restore image
             print("Getting hardware model...")
             let restoreImage = try await VZMacOSRestoreImage.latestSupported
             guard let configuration = restoreImage.mostFeaturefulSupportedConfiguration else {
@@ -291,12 +272,10 @@ class VMManager {
             vmConfig.platform = platform
             print("Auxiliary storage loaded successfully")
 
-            // Configure boot loader
             print("Configuring boot loader...")
             let bootLoader = VZMacOSBootLoader()
             vmConfig.bootLoader = bootLoader
 
-            // Configure storage
             print("Configuring storage...")
             let diskImageURL = vmPath.appendingPathComponent("disk.img.sparseimage")
             guard fileManager.fileExists(atPath: diskImageURL.path) else {
@@ -314,7 +293,6 @@ class VMManager {
                     "Failed to configure storage: \(error.localizedDescription)")
             }
 
-            // Configure graphics
             print("Configuring graphics...")
             let graphics = VZMacGraphicsDeviceConfiguration()
             graphics.displays = [
@@ -326,7 +304,6 @@ class VMManager {
             ]
             vmConfig.graphicsDevices = [graphics]
 
-            // Configure network
             print("Configuring network...")
             let network = VZVirtioNetworkDeviceConfiguration()
             network.attachment = VZNATNetworkDeviceAttachment()
